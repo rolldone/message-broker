@@ -1,0 +1,6 @@
+.sync_ignore
+.env
+sync-config.yaml
+src
+.sync_temp
+.ssh
