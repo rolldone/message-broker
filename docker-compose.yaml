@@ -68,6 +68,8 @@ services:
       - /etc/redis/certs/server.key
       - --tls-ca-cert-file
       - /etc/redis/certs/ca.crt
+      - --tls-auth-clients
+      - "yes"
       - --requirepass
       - ${REDIS_PASSWORD}
     volumes:
@@ -78,7 +80,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-
   rabbitmq:
     image: rabbitmq:management
     ports:
