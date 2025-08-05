@@ -28,6 +28,8 @@ services:
       --tls
       --tlscert /etc/nats-certs/server.crt
       --tlskey /etc/nats-certs/server.key
+      --tlscacert /etc/nats-certs/ca.crt
+      --tlsverify
       --cluster_name ${NATS_BASIC_CLUSTER_NAME}
       --cluster nats://0.0.0.0:6222
       --http_port 8222
@@ -69,7 +71,7 @@ services:
       - --tls-ca-cert-file
       - /etc/redis/certs/ca.crt
       - --tls-auth-clients
-      - "yes"
+      - "no"
       - --requirepass
       - ${REDIS_PASSWORD}
     volumes:
@@ -95,17 +97,20 @@ services:
         max-size: "10m"
         max-file: "3"
 
-  # rabbitmq_tls:
-  #   image: rabbitmq:management
-  #   ports:
-  #     - "${RABBITMQ_TLS_PORT}:5672"
-  #     - "15673:15672"
-  #   environment:
-  #     - RABBITMQ_TLS_PORT=${RABBITMQ_TLS_PORT}
-  #   command: ["rabbitmq-server", "--ssl"]
-  #   restart: unless-stopped
-  #   logging:
-  #     driver: "json-file"
-  #     options:
-  #       max-size: "10m"
-  #       max-file: "3"
+  rabbitmq_tls:
+    image: rabbitmq:management
+    ports:
+      - "${RABBITMQ_TLS_PORT}:2252"
+      # - "${DOCKER_HOST}:${RABBITMQ_TLS_MANAGER_PORT}:15673"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    volumes:
+      - ./src/tls/rabbitmq:/etc/rabbitmq/certs
+      - ./src/tls/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
